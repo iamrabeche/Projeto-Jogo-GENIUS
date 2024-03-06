@@ -1,5 +1,8 @@
 #include <Arduino.h>
 
+#define MAX_RODADAS 30
+
+// COMPONENTES
 int ledRed = 2;
 int ledYellow = 3;
 int ledGreen = 4;
@@ -9,21 +12,23 @@ int btnGreen = 7;
 int ledERRO = 8;
 int ledACERTO = 9;
 
+// VARIÁVEIS E VETORES
 int led = 0;
-int sequencia[30];
-int sequencia_digitada[30];
+int sequencia[MAX_RODADAS];
+int sequencia_digitada[MAX_RODADAS];
 int position = 0;
 int time_led_ON = 200;
 int time_led_OFF = 300;
-int MAX_RODADAS = 30;
 bool erro = false;
 
+// FUNÇÕES
 void inicio();
 void ganhou();
 void perdeu();
 void ligar_led(int pos);
 void sequencia_jogador(int pos);
 bool verificar_sequencia(int vector[], int vector2[]);
+void botao_travado();
 
 void setup(){
   pinMode(btnRed, INPUT);
@@ -32,9 +37,8 @@ void setup(){
   pinMode(ledRed, OUTPUT);
   pinMode(ledYellow, OUTPUT);
   pinMode(ledGreen, OUTPUT);
-  pinMode(ledERRO, OUTPUT); // Adicionado
-  pinMode(ledACERTO, OUTPUT); // Adicionado
-  Serial.begin(9600);
+  pinMode(ledERRO, OUTPUT);
+  pinMode(ledACERTO, OUTPUT);
   randomSeed(analogRead(0));
   inicio();
 }
@@ -44,9 +48,8 @@ void loop()
 
 if (position < MAX_RODADAS)
 {
-    int led = random(0,3); // Gera um nmero aleatrio entre 0 e 2
-
-    sequencia[position] = led; // Adiciona o nmero sorteado  sequncia
+    led = random(0,3); // gera um numero aleatorio em 0 e 2
+    sequencia[position] = led; // adiciona o numero sorteado a sequencia
     
     ligar_led(position);
     delay(50);
@@ -125,17 +128,19 @@ void ganhou() {
   }
 }
 
-///**********************************************************************
 void sequencia_jogador(int pos)
 {
   for(int r = 0; r <= pos; r++)
   {
-    // Espera até que um botão seja pressionado
-    while (digitalRead(btnGreen) == LOW && digitalRead(btnYellow) == LOW && digitalRead(btnRed) == LOW) {
-      delay(50); // Pequena pausa para não sobrecarregar o processador
+    // aguarda um botão seja pressionado
+    while (digitalRead(btnGreen) == LOW && digitalRead(btnYellow) == LOW && digitalRead(btnRed) == LOW)
+    {
+      delay(50); // pausa para não sobrecarregar o processador
     }
 
-    // Verifica qual botão foi pressionado
+    unsigned long start = millis();
+
+    // verifica qual botão foi pressionado
     if(digitalRead(btnGreen) == HIGH)
     {
       sequencia_digitada[r] = 0;
@@ -148,9 +153,18 @@ void sequencia_jogador(int pos)
     {
       sequencia_digitada[r] = 2;
     }
-    // Aguarda até que o botão seja solto
-    while (digitalRead(btnGreen) == HIGH || digitalRead(btnYellow) == HIGH || digitalRead(btnRed) == HIGH) {
-      delay(50); // Pequena pausa para não sobrecarregar o processador
+    // aguarda até que o botão seja solto
+    while (digitalRead(btnGreen) == HIGH || digitalRead(btnYellow) == HIGH || digitalRead(btnRed) == HIGH)
+    {
+      
+      delay(50); // pausa
+      
+      // verificando se o botao está sendo pressionado há mais de 3s
+      if(millis() - start >= 3000)
+      {
+        botao_travado();
+      }
+      
     }
     if(sequencia[r] != sequencia_digitada[r]){
     break;
@@ -159,8 +173,15 @@ void sequencia_jogador(int pos)
   delay(50);
 }
 
+void botao_travado()
+{
+  digitalWrite(ledACERTO, HIGH);
+  digitalWrite(ledERRO, HIGH);
+  delay(500);
+  digitalWrite(ledACERTO, LOW);
+  digitalWrite(ledERRO, LOW);
+}
 
-///*******************************************************************/
 bool verificar_sequencia(int vector[],int vector2[])
 {
   bool aux = false; 

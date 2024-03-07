@@ -2,6 +2,22 @@
 
 #define MAX_RODADAS 30
 
+/*
+O tratamento de erros implementado foi principalmente a função que identifica se um botão
+está travado. Segundo a lógica de funcionamento, diante de um botão travado, o ledACERTO
+e ledERRO são acionados.
+Se dois botões são acionados ao mesmo tempo, o jogo vai registrar o primeiro acionado e
+seguir a lógica de funcionamento. Testei no físico e o tempo de resposta entre os
+acionamentos está ok para um usuário *normal*, então não foi um problema identificado
+para o qual tenha sido necessário implementar uma solução específica.
+Não implementei uma função que identifique o "clique-duplo", visto que o senhor mencionou que
+seria o conteúdo seguinte, então não faria sentido colocar a carroça a frente dos bois.
+
+Há, claro, soluções e tratamentos de erros mais "elegantes", como um teste dos leds
+e botões em operação, mas pelo tempo disponível e proposta da atividade não foi possível
+implementa-los.
+*/
+
 // COMPONENTES
 int ledRed = 2;
 int ledYellow = 3;
